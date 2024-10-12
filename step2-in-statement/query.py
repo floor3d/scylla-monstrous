@@ -10,8 +10,9 @@ def connect_to_scylla():
     return session
 
 
-def query_user(session, user_id, table_name):
-    query = f"SELECT * FROM {table_name} WHERE id = {user_id}"
+def query_user(session, user_ids, table_name):
+    IN_stmt = f"id IN ({','.join(user_ids)})"
+    query = f"SELECT * FROM {table_name} WHERE {IN_stmt}"
     stmt = SimpleStatement(query)
     return session.execute(stmt)
 
@@ -25,7 +26,7 @@ def go(total_users, num_to_query, table_name):
     random_ids = generate_random_ids(total_users, num_to_query)
 
     start = time()
-    rows = [query_user(session, user_id, table_name) for user_id in random_ids]
+    rows = query_user(session, random_ids, table_name)
     end = time()
 
     diff = end - start
