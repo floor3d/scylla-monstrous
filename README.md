@@ -14,8 +14,8 @@ where `?` is one of `n` IDs that we want to search for.
 We will be testing a lot of different ways to do this, and providing benchmarks
 for each. We will be making permutations of the following tactics:
 
-1. Simple `IN` statement
-2. Simple, looped, single queries
+1. Simple, looped, single queries
+2. Simple `IN` statement
 3. Multithreading
 4. Prepared statements
 5. Asynchronous queries
