@@ -28,7 +28,7 @@ thousands of records, in databases from hundreds, to thousands, to millions, to 
 of rows.
 
 ScyllaDB makes confident assurances in their `Why ScyllaDB` article 
-[as shown here]('https://docs.scylladb.com/stable/get-started/why-scylladb/'),
+[as shown here](https://docs.scylladb.com/stable/get-started/why-scylladb/),
 and we will prove that those assurances are not made up. ScyllaDB is truly 
 monstrously fast, and by running through different query methods, we will find the
 best way to take advantage of it.
