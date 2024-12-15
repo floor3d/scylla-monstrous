@@ -12,7 +12,8 @@ def connect_to_scylla():
     return session
 
 
-def query_user(session, chunk):
+def query_user(chunk):
+    session = connect_to_scylla()
     table_name = chunk[1]
     ret = []
     for user_id in chunk[0]:
@@ -22,14 +23,14 @@ def query_user(session, chunk):
         ret.extend(dict(result))
     return ret
 
-def multiprocess(session, values, table_name, process_count=10):
+def multiprocess(values, table_name, process_count=10):
     with Pool(processes=process_count) as pool:
         chunk_size = min(len(values) // process_count + 1, len(values))
         if chunk_size == 0:
             return []
         chunks = [(values[i:i + chunk_size],table_name) for i in range(0, len(values), chunk_size)]
         result = []
-        for mapped_result in pool.starmap(query_user, [(session, chunk) for chunk in chunks]):
+        for mapped_result in pool.starmap(query_user, chunks):
             result.extend(mapped_result)
     return result
     
@@ -37,12 +38,11 @@ def generate_random_ids(total_users, num_to_query):
     return random.sample(range(1, total_users + 1), num_to_query)
 
 def go(total_users, num_to_query, table_name):
-    session = connect_to_scylla()
     random_ids = generate_random_ids(total_users, num_to_query)
     process_count = 10
 
     start = time()
-    rows = multiprocess(session, random_ids, table_name, process_count)
+    rows = multiprocess(random_ids, table_name, process_count)
     end = time()
 
     diff = end - start
