@@ -22,6 +22,7 @@
             python3
             python3Packages.pip
             python3Packages.cassandra-driver
+            cassandra
           ];
           shellHook = ''
             mkdir -p .venv
