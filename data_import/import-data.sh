@@ -1,3 +1,2 @@
 #!/bin/bash
-# COPY my_table FROM 'data.csv' WITH HEADER=TRUE;
-
+cqlsh -e "SOURCE 'csv_import.cql'"
