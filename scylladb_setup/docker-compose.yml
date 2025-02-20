@@ -8,4 +8,7 @@ services:
       - type: bind
         source: ../data_import/csvs
         target: /csvs
+      - type: bind
+        source: ../data_import/csv_import.cql
+        target: /csv_import.cql
     command: '--overprovisioned 1'

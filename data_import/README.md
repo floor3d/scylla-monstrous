@@ -10,7 +10,7 @@ results, we would have different Scylla in different compters with all different
 table sizes, so as to not have everything on the same instance. In a perfect world,
 we would also be using a three-or-more-container Scylla instance.
 Similarly, in a perfect world, I'd have ten Dell PowerEdge R760s, a 24-port managed
-switch, a Palo Alto firewall, a Cisco firewall, no electricity bill, and a billion
+switch, a Palo Alto firewall, no electricity bill, and a billion
 dollars. 
 So, we will have to deal with this naive way of benchmarking.
 

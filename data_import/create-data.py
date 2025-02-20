@@ -40,17 +40,19 @@ def populate_csv(num_rows):
 
     with open(file_name, "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["hash"])
+        writer.writerow(["hash", "id"])
         
         num_loops = 1
         if BATCH_SIZE < num_rows:
             num_loops = num_rows // BATCH_SIZE
         debug_print(f"Using {num_loops} loops for batch size {BATCH_SIZE} for {num_rows} rows")
         running_total = 0
+        counter = 1
         for _ in range(num_loops):
             data = []
             for i in range(BATCH_SIZE):
-                data.append([hashlib.sha256(HASH_SEED + str(running_total + i).encode()).hexdigest()])
+                data.append([hashlib.sha256(HASH_SEED + str(running_total + i).encode()).hexdigest(), counter])
+                counter += 1
             running_total += BATCH_SIZE
             writer.writerows(data)
             debug_print(f"Wrote {BATCH_SIZE} rows for a total of {running_total} records")
