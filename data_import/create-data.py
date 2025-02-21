@@ -50,7 +50,7 @@ def populate_csv(num_rows):
         counter = 1
         for _ in range(num_loops):
             data = []
-            for i in range(BATCH_SIZE):
+            for i in range(min(BATCH_SIZE, num_rows)):
                 data.append([hashlib.sha256(HASH_SEED + str(running_total + i).encode()).hexdigest(), counter])
                 counter += 1
             running_total += BATCH_SIZE
