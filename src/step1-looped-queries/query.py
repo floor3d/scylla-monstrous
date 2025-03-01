@@ -32,6 +32,8 @@ def go(total_users, num_to_query, table_name):
 
     str_diff = f"{diff:0.4f}"
     
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
+    
     session.shutdown()
     
     return (str_diff, rows)
