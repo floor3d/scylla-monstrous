@@ -1,6 +1,5 @@
 import random
 from cassandra.cluster import Cluster
-from cassandra.query import SimpleStatement
 import argparse
 from time import time
 
@@ -10,10 +9,9 @@ def connect_to_scylla():
     return session
 
 
-def query_user(session, user_id, table_name):
-    query = session.prepare(f"SELECT * FROM {table_name} WHERE id = ?")
-    stmt = SimpleStatement(query, (user_id,))
-    return session.execute(stmt)
+def query_user(session, prep, user_id):
+    bound = prep.bind([user_id])
+    return session.execute(bound)
 
 
 def generate_random_ids(total_users, num_to_query):
@@ -25,20 +23,22 @@ def go(total_users, num_to_query, table_name):
     random_ids = generate_random_ids(total_users, num_to_query)
 
     start = time()
-    rows = [query_user(session, user_id, table_name) for user_id in random_ids]
+    query = session.prepare(f"SELECT * FROM {table_name} WHERE id=?")
+    rows = [query_user(session, query, user_id ) for user_id in random_ids]
     end = time()
 
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     session.shutdown()
     
     return (str_diff, rows)
 
 parser = argparse.ArgumentParser(description='Query Scylla for random users')
-parser.add_argument('--total_users', type=int, required=True, help='Total number of users in the database')
-parser.add_argument('--num_to_query', type=int, required=True, help='Number of users to query')
+parser.add_argument('--total_users', type=int, required=True, help='Total number of users in the database') 
+parser.add_argument('--num_to_query', type=int, required=True, help='Number of users to query') 
 parser.add_argument('--table_name', type=str, required=True, help='Table name to query from')
 
 args = parser.parse_args()
