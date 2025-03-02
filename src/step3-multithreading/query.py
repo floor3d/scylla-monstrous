@@ -23,7 +23,7 @@ def worker(session, user_ids, table_name, shared_ret, id):
 
 def query_user_threaded(session, user_ids, table_name, num_threads):
     threads = []
-    shared_ret = []
+    shared_ret = [[] for _ in range(len(user_ids))]
     for i in range(num_threads):
         thread = threading.Thread(target=worker, args=(session, user_ids[i], table_name, shared_ret, i))
         thread.start()
@@ -41,9 +41,7 @@ def go(total_users, num_to_query, table_name, num_threads):
     session = connect_to_scylla()
     random_ids = generate_random_ids(total_users, num_to_query)
 
-    inner_list_len = len(random_ids) / num_threads
-
-    batched_ids_for_threading = [random_ids[i * inner_list_len:(i + 1) * inner_list_len] for i in range(num_threads)]
+    batched_ids_for_threading = [random_ids[i::num_threads] for i in range(num_threads)]
     start = time()
     rows = query_user_threaded(session, batched_ids_for_threading, table_name, num_threads)
     end = time()
@@ -51,6 +49,7 @@ def go(total_users, num_to_query, table_name, num_threads):
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     session.shutdown()
     
@@ -60,7 +59,7 @@ parser = argparse.ArgumentParser(description='Query Scylla for random users')
 parser.add_argument('--total_users', type=int, required=True, help='Total number of users in the database')
 parser.add_argument('--num_to_query', type=int, required=True, help='Number of users to query')
 parser.add_argument('--table_name', type=str, required=True, help='Table name to query from')
-parser.add_argument('--num_threads', type=str, required=True, help='How many threads to use')
+parser.add_argument('--num_threads', type=int, required=True, help='How many threads to use')
 
 args = parser.parse_args()
 
