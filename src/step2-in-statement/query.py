@@ -23,7 +23,7 @@ def generate_random_ids(total_users, num_to_query):
 
 def go(total_users, num_to_query, table_name):
     session = connect_to_scylla()
-    random_ids = generate_random_ids(total_users, num_to_query)
+    random_ids = [str(x) for x in generate_random_ids(total_users, num_to_query)]
 
     start = time()
     rows = query_user(session, random_ids, table_name)
@@ -32,6 +32,8 @@ def go(total_users, num_to_query, table_name):
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
+    
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     session.shutdown()
     
