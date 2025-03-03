@@ -32,11 +32,13 @@ def go(total_users, num_to_query, table_name):
         # turn list of lists into list
         rows.extend(f.result().all())
         
+    
     end = time()
 
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     session.shutdown()
     
