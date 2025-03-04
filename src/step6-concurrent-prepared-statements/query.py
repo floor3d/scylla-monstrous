@@ -11,8 +11,7 @@ def connect_to_scylla():
     return session
 
 
-def query_user(session, user_ids, table_name):
-    select_statement = session.prepare(f"SELECT * FROM {table_name} WHERE id=?")
+def query_user(session, select_statement, user_ids, table_name):
 
     statements_and_params = []
     for user_id in user_ids:
@@ -29,15 +28,18 @@ def generate_random_ids(total_users, num_to_query):
 def go(total_users, num_to_query, table_name):
     session = connect_to_scylla()
     random_ids = generate_random_ids(total_users, num_to_query)
+    select_statement = session.prepare(f"SELECT * FROM {table_name} WHERE id=?")
 
     start = time()
     # list of futures
-    rows = query_user(session, random_ids, table_name)
+    rows = query_user(session, select_statement, random_ids, table_name)
+    rows = [[x for x in result] for (_, result) in rows]
     end = time()
 
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     session.shutdown()
     
