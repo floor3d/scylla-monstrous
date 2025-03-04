@@ -11,13 +11,16 @@ def connect_to_scylla():
     return session
 
 
-def query_user(user_id, table_name):
+def query_user(user_ids, table_name):
     session = connect_to_scylla()
-    select_statement = session.prepare(f"SELECT * FROM {table_name} WHERE id=?")
-
-    statement_and_param = (select_statement, user_id)
-    
-    return session.execute_async(statement_and_param)
+    prep = session.prepare(f"SELECT * FROM {table_name} WHERE id = ?")
+    futures = []
+    for user_id in user_ids:
+        bound = prep.bind([user_id])
+        futures.append(session.execute_async(bound))
+    results = [f.result().one()[1] for f in futures]
+    session.shutdown()
+    return results
 
 
 def generate_random_ids(total_users, num_to_query):
@@ -30,13 +33,10 @@ def multiprocess(values, table_name, process_count=10):
         if chunk_size == 0:
             return []
         chunks = [(values[i:i + chunk_size],table_name) for i in range(0, len(values), chunk_size)]
-        futures = []
+        results = []
         for mapped_result in pool.starmap(query_user, chunks):
-            futures.extend(mapped_result)
-    ret = []
-    for f in futures:
-        ret.extend(f.result().all())
-    return ret
+            results.extend(mapped_result)
+    return results
 
 
 def go(total_users, num_to_query, table_name):
@@ -44,13 +44,13 @@ def go(total_users, num_to_query, table_name):
 
     start = time()
     rows = multiprocess(random_ids, table_name)
+    print(rows)
     end = time()
 
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
-    
-    session.shutdown()
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     return (str_diff, rows)
 
