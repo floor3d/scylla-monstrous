@@ -20,7 +20,8 @@ def query_user(chunk):
         query = f"SELECT * FROM {table_name} WHERE id = {user_id}"
         stmt = SimpleStatement(query)
         result = session.execute(stmt)
-        ret.extend(dict(result))
+        ret.append(result.one()[1])
+    session.shutdown()
     return ret
 
 def multiprocess(values, table_name, process_count=10):
@@ -30,7 +31,7 @@ def multiprocess(values, table_name, process_count=10):
             return []
         chunks = [(values[i:i + chunk_size],table_name) for i in range(0, len(values), chunk_size)]
         result = []
-        for mapped_result in pool.starmap(query_user, chunks):
+        for mapped_result in pool.map(query_user, chunks):
             result.extend(mapped_result)
     return result
     
@@ -44,12 +45,12 @@ def go(total_users, num_to_query, table_name):
     start = time()
     rows = multiprocess(random_ids, table_name, process_count)
     end = time()
+    print(rows)
 
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
-    
-    session.shutdown()
+    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     return (str_diff, rows)
 
