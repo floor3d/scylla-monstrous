@@ -45,20 +45,23 @@ def go(total_users, num_to_query, table_name):
     start = time()
     rows = multiprocess(random_ids, table_name, process_count)
     end = time()
-    print(rows)
 
     diff = end - start
 
     str_diff = f"{diff:0.4f}"
-    print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
+    # print(f"Queried {num_to_query} users out of {total_users} from table {table_name} in {str_diff} seconds")
     
     return (str_diff, rows)
 
-parser = argparse.ArgumentParser(description='Query Scylla for random users')
-parser.add_argument('--total_users', type=int, required=True, help='Total number of users in the database')
-parser.add_argument('--num_to_query', type=int, required=True, help='Number of users to query')
-parser.add_argument('--table_name', type=str, required=True, help='Table name to query from')
+def main():
+    parser = argparse.ArgumentParser(description='Query Scylla for random users')
+    parser.add_argument('--total_users', type=int, required=True, help='Total number of users in the database')
+    parser.add_argument('--num_to_query', type=int, required=True, help='Number of users to query')
+    parser.add_argument('--table_name', type=str, required=True, help='Table name to query from')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-go(args.total_users, args.num_to_query, args.table_name)   
+    go(args.total_users, args.num_to_query, args.table_name)   
+
+if __name__ == "__main__":
+    main()
